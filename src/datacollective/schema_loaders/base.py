@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import csv
 import re
 import warnings
 from pathlib import Path
@@ -235,6 +236,10 @@ class BaseSchemaLoader(abc.ABC):
             kwargs["engine"] = "python"
         else:
             kwargs["sep"] = sep
+        if sep == "\t":
+            # TSVs (e.g. Common Voice) don't quote fields; a field starting with
+            # '"' would otherwise swallow every row up to the next '"'.
+            kwargs["quoting"] = csv.QUOTE_NONE
         return pd.read_csv(file_path, **kwargs)
 
     def _resolve_separator(self, file_path: Path | None = None) -> str | None:
